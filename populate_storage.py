@@ -151,7 +151,7 @@ def create_dummy_data(number_of_instances):
     for _ in range(number_of_instances):
         # create users
         user_obj = User(
-            email=fake.email(),
+            email=fake.email(domain=choice(["lzcorp.it", ""])),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             password=fake.password(),
@@ -177,9 +177,10 @@ def create_dummy_data(number_of_instances):
                 longitude=float(fake.longitude()),
                 latitude=float(fake.latitude()),
                 description=fake.sentence(),
-                number_of_rooms=fake.random_digit(),
-                number_of_bathrooms=fake.random_digit(),
-                price_by_night=fake.random_int(),
+                number_rooms=choice(range(1, 4)),
+                number_bathrooms=choice(range(1, 4)),
+                price_by_night=choice(range(80, 501, 15)),
+                max_guest=choice(range(1, 5))
             )
             place_obj_2 = Place(
                 user_id=user_id,
@@ -188,9 +189,10 @@ def create_dummy_data(number_of_instances):
                 longitude=float(fake.longitude()),
                 latitude=float(fake.latitude()),
                 description=fake.sentence(),
-                number_rooms=fake.random_digit(),
-                number_bathrooms=fake.random_digit(),
-                price_by_night=fake.random_int(),
+                number_rooms=choice(range(1, 4)),
+                number_bathrooms=choice(range(1, 4)),
+                price_by_night=choice(range(80, 501, 15)),
+                max_guest=choice(range(1, 5))
             )
 
             place_obj_1.save()
