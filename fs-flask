@@ -32,7 +32,7 @@ while true; do
     sleep 3
 
     # check if the server is running
-    if ! pgrep -laf "$flask_app" > /dev/null; then
+    if ! pgrep -laf "python3 -m $flask_app" > /dev/null; then
         echo "Failed to start the server"
         exit 1
     fi
