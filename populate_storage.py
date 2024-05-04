@@ -148,10 +148,11 @@ def create_dummy_data(number_of_instances):
             sleep(0.1)
 
     print("\nCreating users")
-    for _ in range(number_of_instances):
+    for _ in range(number_of_instances * 5):
         # create users
         user_obj = User(
-            email=fake.email(),
+            email=fake.email(domain=choice(
+                ["lzcorp.it", "hbtn.io", "example.com", "code.tech"])),
             first_name=fake.first_name(),
             last_name=fake.last_name(),
             password=fake.password(),
@@ -170,28 +171,27 @@ def create_dummy_data(number_of_instances):
 
             city = storage.get(City, city_id)
             print("\t Adding places for city: {}".format(city.name))
-            place_obj_1 = Place(
-                user_id=user_id,
-                city_id=city_id,
-                name=fake.city(),
-                longitude=float(fake.longitude()),
-                latitude=float(fake.latitude()),
-                description=fake.sentence(),
-                number_of_rooms=fake.random_digit(),
-                number_of_bathrooms=fake.random_digit(),
-                price_by_night=fake.random_int(),
-            )
-            place_obj_2 = Place(
-                user_id=user_id,
-                city_id=city_id,
-                name=fake.city(),
-                longitude=float(fake.longitude()),
-                latitude=float(fake.latitude()),
-                description=fake.sentence(),
-                number_rooms=fake.random_digit(),
-                number_bathrooms=fake.random_digit(),
-                price_by_night=fake.random_int(),
-            )
+            place_obj_1 = Place(user_id=user_id,
+                                city_id=city_id,
+                                name=fake.city(),
+                                longitude=float(fake.longitude()),
+                                latitude=float(fake.latitude()),
+                                description=fake.sentence(),
+                                number_rooms=choice(range(1, 4)),
+                                number_bathrooms=choice(range(1, 4)),
+                                price_by_night=choice(range(80, 501, 15)),
+                                max_guest=choice(range(1, 5)))
+
+            place_obj_2 = Place(user_id=user_id,
+                                city_id=city_id,
+                                name=fake.city(),
+                                longitude=float(fake.longitude()),
+                                latitude=float(fake.latitude()),
+                                description=fake.sentence(),
+                                number_rooms=choice(range(1, 4)),
+                                number_bathrooms=choice(range(1, 4)),
+                                price_by_night=choice(range(80, 501, 15)),
+                                max_guest=choice(range(1, 5)))
 
             place_obj_1.save()
             sleep(0.1)
@@ -246,4 +246,8 @@ if __name__ == "__main__":
         print("Usage: {} <number_of_instance>".format(sys.argv[0]))
         sys.exit(1)
 
-    create_dummy_data(int(sys.argv[1]))
+    try:
+        create_dummy_data(int(sys.argv[1]))
+    except KeyboardInterrupt:
+        print("Stopping generation...")
+        sys.exit(1)
