@@ -15,7 +15,5 @@ $(document).ready(function () {
     }
 
     amenitiesHeading4.text(Object.values(amenitiesDict).join(", "));
-
-    console.table(amenitiesDict);
   });
 });
