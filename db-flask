@@ -14,6 +14,8 @@ fi
 flask_app=$1
 number_of_instances=$2
 
+rm amenities.json &> /dev/null
+
 # terminate the Flask server when the script exits
 kill_server() {
 	echo -e "\nTerminating the server"
