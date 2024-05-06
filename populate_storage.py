@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """This script generates dummy data for testing purposes."""
 
+import json
 import sys
 from random import choice
 from time import sleep
@@ -122,7 +123,13 @@ fake = Faker()
 city_ids = []
 user_ids = []
 place_ids = []
-amenity_ids = []
+amenity_ids = {}
+
+try:
+    with open("amenities.json", "r", encoding="utf-8") as file:
+        amenity_ids.update(json.load(file))
+except IOError:
+    pass
 
 
 def create_dummy_data(number_of_instances):
@@ -221,24 +228,41 @@ def create_dummy_data(number_of_instances):
     for _ in place_ids:
         for _ in range(number_of_instances):
             amenity_obj = Amenity(name=choice(all_amenities))
-            amenity_ids.append(amenity_obj.id)
-            amenity_obj.save()
+            if amenity_obj.name not in amenity_ids:
+                amenity_ids[amenity_obj.name] = amenity_obj.id
+                amenity_obj.save()
             sleep(0.1)
 
+            print("...")
             print("\t Added amenity: {} - {}".format(amenity_obj.name,
                                                      amenity_obj.id))
+    with open("amenities.json", "w", encoding="utf-8") as file:
+        json.dump(amenity_ids, file, indent=4, sort_keys=True)
 
     # add amenities to places
     print("\nAdding amenities to places")
-    for obj in place_ids:
-        place_obj = storage.get(Place, obj)
-        for _ in range(number_of_instances):
-            amenity_obj = storage.get(Amenity, choice(amenity_ids))
-            place_obj.amenities.append(amenity_obj)
-            place_obj.save()
+    places = storage.all(Place).values()
+    for place in places:
+        for _ in range(number_of_instances * 2):
+            amenity = storage.get(Amenity, choice(list(amenity_ids.values())))
+            if amenity and amenity not in place.amenities:
+                place.amenities.append(amenity)
+                place.save()
+
+        for amenity in place.amenities:
             print("\t Added amenity: {} to place: {}".format(
-                amenity_obj.name, place_obj.name))
-            sleep(0.1)
+                amenity.name, place.name))
+        print("...")
+
+        sleep(0.1)
+
+    if len(storage.all(Place)) > 20:
+        print('Deleting old place data to remove clutter')
+        for place_id in place_ids[:10]:
+            place = storage.get(Place, place_id)
+            print("\t Deleting place: {}".format(place.name))
+            storage.delete(place)
+            storage.save()
 
 
 if __name__ == "__main__":
